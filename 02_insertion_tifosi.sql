@@ -1,80 +1,78 @@
--- 1. Création de la base de données
-CREATE DATABASE IF NOT EXISTS tifosi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE tifosi;
 
--- 2. Création de l'utilisateur (à exécuter avec les droits root/administrateur)
-CREATE USER IF NOT EXISTS 'tifosi'@'localhost' IDENTIFIED BY 'MotDePasse123!';
-GRANT ALL PRIVILEGES ON tifosi.* TO 'tifosi'@'localhost';
-FLUSH PRIVILEGES;
+-- 1. Insertion des marques
+INSERT INTO marque (id_marque, nom_marque) VALUES
+(1, 'Coca-cola'),
+(2, 'Cristalline'),
+(3, 'Monster'),
+(4, 'Pepsico');
 
--- 3. Création des tables "Simples" (sans clés étrangères)
-CREATE TABLE IF NOT EXISTS marque (
-    id_marque INT PRIMARY KEY,
-    nom_marque VARCHAR(45) NOT NULL
-) ENGINE=InnoDB;
+-- 2. Insertion des ingrédients
+INSERT INTO ingredient (id_ingredient, nom_ingredient) VALUES
+(1, 'Ail'), (2, 'Ananas'), (3, 'Artichaut'), (4, 'Bacon'), (5, 'Base Tomate'),
+(6, 'Base crème'), (7, 'Champignon'), (8, 'Chevre'), (9, 'Cresson'), (10, 'Emmental'),
+(11, 'Gorgonzola'), (12, 'Jambon cuit'), (13, 'Jambon fumé'), (14, 'Oeuf'), (15, 'Oignon'),
+(16, 'Olive noire'), (17, 'Olive verte'), (18, 'Parmesan'), (19, 'Piment'), (20, 'Poivre'),
+(21, 'Pomme de terre'), (22, 'Raclette'), (23, 'Salami'), (24, 'Tomate cerise'), (25, 'Mozzarella');
 
-CREATE TABLE IF NOT EXISTS ingredient (
-    id_ingredient INT PRIMARY KEY,
-    nom_ingredient VARCHAR(45) NOT NULL
-) ENGINE=InnoDB;
+-- 3. Insertion des focaccias
+INSERT INTO focaccia (id_focaccia, nom_focaccia, prix_focaccia) VALUES
+(1, 'Mozaccia', 9.80),
+(2, 'Gorgonzollaccia', 10.80),
+(3, 'Raclaccia', 8.90),
+(4, 'Emmentalaccia', 9.80),
+(5, 'Tradizione', 8.90),
+(6, 'Hawaienne', 11.20),
+(7, 'Américaine', 10.80),
+(8, 'Paysanne', 12.80);
 
-CREATE TABLE IF NOT EXISTS focaccia (
-    id_focaccia INT PRIMARY KEY,
-    nom_focaccia VARCHAR(45) NOT NULL,
-    prix_focaccia DECIMAL(5,2) NOT NULL
-) ENGINE=InnoDB;
+-- 4. Insertion des boissons
+INSERT INTO boisson (id_boisson, nom_boisson, id_marque) VALUES
+(1, 'Coca-cola zéro', 1),
+(2, 'Coca-cola original', 1),
+(3, 'Fanta citron', 1),
+(4, 'Fanta orange', 1),
+(5, 'Caprisun', 1),
+(6, 'Pepite', 4),
+(7, 'Grand Ferrero', 4),
+(8, 'Lipton zéro citron', 4),
+(9, 'Lipton Peach', 4),
+(10, 'Monster energy ultra gold', 3),
+(11, 'Monster energy ultra blue', 3),
+(12, 'Eau de source', 2);
 
-CREATE TABLE IF NOT EXISTS client (
-    id_client INT PRIMARY KEY,
-    nom_client VARCHAR(45) NOT NULL,
-    email_client VARCHAR(45) NOT NULL UNIQUE,
-    cp_client INT NOT NULL
-) ENGINE=InnoDB;
+-- 5. Insertion des liaisons Ingrédients - Focaccias (Table comprend)
+INSERT INTO comprend (id_focaccia, id_ingredient) VALUES
+-- Mozaccia
+(1, 5), (1, 25), (1, 9), (1, 13), (1, 1), (1, 3), (1, 7), (1, 18), (1, 20), (1, 16),
+-- Gorgonzollaccia
+(2, 5), (2, 11), (2, 9), (2, 1), (2, 7), (2, 18), (2, 20), (2, 16),
+-- Raclaccia
+(3, 5), (3, 22), (3, 9), (3, 1), (3, 7), (3, 18), (3, 20),
+-- Emmentalaccia
+(4, 6), (4, 10), (4, 9), (4, 7), (4, 18), (4, 20), (4, 15),
+-- Tradizione
+(5, 5), (5, 25), (5, 9), (5, 12), (5, 7), (5, 18), (5, 20), (5, 16), (5, 17),
+-- Hawaienne
+(6, 5), (6, 25), (6, 9), (6, 4), (6, 2), (6, 19), (6, 18), (6, 20), (6, 16),
+-- Américaine
+(7, 5), (7, 25), (7, 9), (7, 4), (7, 21), (7, 18), (7, 20), (7, 16),
+-- Paysanne
+(8, 6), (8, 8), (8, 9), (8, 21), (8, 13), (8, 1), (8, 3), (8, 7), (8, 18), (8, 20), (8, 16), (8, 14);
 
-CREATE TABLE IF NOT EXISTS menu (
-    id_menu INT PRIMARY KEY,
-    nom_menu VARCHAR(45) NOT NULL,
-    prix_menu DECIMAL(5,2) NOT NULL
-) ENGINE=InnoDB;
+-- 6. Insertion de données de test pour éviter que les requêtes soient vides
+INSERT INTO menu (id_menu, nom_menu, prix_menu, id_focaccia) VALUES
+(1, 'Menu Mozaccia', 12.50, 1),
+(2, 'Menu Gorgonzollaccia', 13.50, 2);
 
--- 4. Création des tables "Enfants" (avec clés étrangères)
-CREATE TABLE IF NOT EXISTS boisson (
-    id_boisson INT PRIMARY KEY,
-    nom_boisson VARCHAR(45) NOT NULL,
-    id_marque INT NOT NULL,
-    FOREIGN KEY (id_marque) REFERENCES marque(id_marque)
-) ENGINE=InnoDB;
+INSERT INTO client (id_client, nom_client, age, cp_client, email) VALUES
+(1, 'Jean Dupont', 25, 75001, 'jean.dupont@email.fr'),
+(2, 'Marie Martin', 30, 69002, 'marie.martin@email.fr');
 
--- 5. Création des tables de liaison (pour relier les éléments entre eux)
-CREATE TABLE IF NOT EXISTS comprend (
-    id_focaccia INT NOT NULL,
-    id_ingredient INT NOT NULL,
-    PRIMARY KEY (id_focaccia, id_ingredient),
-    FOREIGN KEY (id_focaccia) REFERENCES focaccia(id_focaccia),
-    FOREIGN KEY (id_ingredient) REFERENCES ingredient(id_ingredient)
-) ENGINE=InnoDB;
+INSERT INTO contient (id_menu, id_boisson) VALUES
+(1, 1),
+(2, 2);
 
-CREATE TABLE IF NOT EXISTS contient (
-    id_menu INT NOT NULL,
-    id_boisson INT NOT NULL,
-    PRIMARY KEY (id_menu, id_boisson),
-    FOREIGN KEY (id_menu) REFERENCES menu(id_menu),
-    FOREIGN KEY (id_boisson) REFERENCES boisson(id_boisson)
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS est_constitue (
-    id_menu INT NOT NULL,
-    id_focaccia INT NOT NULL,
-    PRIMARY KEY (id_menu, id_focaccia),
-    FOREIGN KEY (id_menu) REFERENCES menu(id_menu),
-    FOREIGN KEY (id_focaccia) REFERENCES focaccia(id_focaccia)
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS achete (
-    id_client INT NOT NULL,
-    id_menu INT NOT NULL,
-    jour DATE NOT NULL,
-    PRIMARY KEY (id_client, id_menu, jour),
-    FOREIGN KEY (id_client) REFERENCES client(id_client),
-    FOREIGN KEY (id_menu) REFERENCES menu(id_menu)
-) ENGINE=InnoDB;
+INSERT INTO achete (id_client, id_menu, jour, quantite) VALUES
+(1, 1, '2026-05-04', 1),
+(2, 2, '2026-05-04', 2);
